@@ -1,0 +1,40 @@
+# This workflow builds the Docker image whenever a pull request is opened or updated, including draft pull requests. It adds a success / failure check to the PR approval block but a failure from this check does not block merging.
+
+# This action should closely mimick the `tags.yml` action without the notification & ECR steps so if your `tags` action changes you should review this one as well.
+
+name: Check if it Builds
+
+on: pull_request
+
+jobs:
+  build:
+    if: github.event.repository.name != 'gev-starter-kit'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: '12.16.1'
+          registry-url: 'https://registry.npmjs.org'
+      - id: packageVersion
+        uses: notiz-dev/github-action-json-property@release
+        with:
+          path: package.json
+          prop_path: version
+      - id: packageName
+        uses: notiz-dev/github-action-json-property@release
+        with:
+          path: package.json
+          prop_path: name
+      - name: Build Docker image
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          push: false
+          tags: 375633680607.dkr.ecr.us-east-1.amazonaws.com/${{steps.packageName.outputs.prop}}:v${{steps.packageVersion.outputs.prop}}
+          build-args: NPM_TOKEN=${{ secrets.NPM_TOKEN }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

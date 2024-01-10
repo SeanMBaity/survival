@@ -1,0 +1,35 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "GEV Skill",
+      "type": "node",
+      "request": "launch",
+      "preLaunchTask": "Watch & Run Interceptor",
+      "restart": true,
+    },
+    {
+      "name": "GEV Skill v2",
+      "type": "node",
+      "request": "launch",
+      "preLaunchTask": "Alexa Skill Interceptor",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "--nolazy", 
+        "-r", 
+        "ts-node/register/transpile-only", 
+        "--preserve-symlinks"],
+      "args": ["src/index.ts"],
+      "restart": true,
+      "env": {
+        "IS_LOCAL_DEV": "true"
+      },
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/node_modules/**"
+      ],
+      "sourceMaps": true,
+      "smartStep": true,
+      "console": "integratedTerminal"
+    },
+  ]
+}
